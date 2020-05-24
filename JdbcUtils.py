@@ -109,4 +109,4 @@ if __name__ == "__main__":
     # print(connect1)
     # rlist = connect1.select("select * from t_book")
     # print(rlist)
-    # print(type(rlist))
+    # print(type(rlist))1231231
