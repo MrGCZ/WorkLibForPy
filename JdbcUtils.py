@@ -105,8 +105,9 @@ if __name__ == "__main__":
     print(dict1)
 
     print(connect1.dict_to_dbdict(dict1, "sec_info"))
+    print(connect1.dict_to_dbdict(dict1, "sec_info"))
 
     # print(connect1)
     # rlist = connect1.select("select * from t_book")
     # print(rlist)
-    # print(type(rlist))1231231
+    # print(type(rlist))12312311
