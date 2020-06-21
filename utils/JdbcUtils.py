@@ -5,8 +5,8 @@ from WindPy import w
 
 class jdbc_connect:
 
-    cursor="";
-    db=False;
+    cursor = ""
+    db = False
 
     def __init__(self, host, username, password, database):
         try:
@@ -90,8 +90,8 @@ class jdbc_connect:
             sql_str = str("insert into " + insert_table + "(" + ",".join(insert_data.keys()) + ") values(" +
                           "'%s'," * (len(insert_data.keys()) - 1) + "'%s')")
             re_str = ','.join(["insert_data['%s'][i]" % k for k in insert_data.keys()])
-            print(sql_str)
-            print(re_str)
+            #print(sql_str)
+            #print(re_str)
             ex_sql_str = sql_str % eval(re_str)
             # print re_str
             # print(ex_sql_str)

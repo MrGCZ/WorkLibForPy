@@ -24,20 +24,23 @@ a = w.wsd("600030.SH","CLOSE","20190101","20200101")
 #
 # w.edb("M5567876", "2019-04-01", "2020-05-23","Fill=Previous")
 #
-# b=w.wss("000001.OF,000003.OF", "sec_name")
-# print(b)
 
-
-dict1={}
-# wind api
-b = w.wss("000001.OF,000005.OF,000009.OF",
-          "trade_code,windcode,sec_name,sec_englishname,exchange_cn,ipo_date,isin_code,fund_fullname,name_official")
+b = w.edb("M0009805", "2019-06-21", "2020-06-20","Fill=Previous")
 print(b)
 
-# convert to dict
-for i in range(len(b.Fields)):
-        dict1[b.Fields[i]] = b.Data[i]
 
-print(dict1)
+# dict1={}
+# # wind api
+# b = w.wss("000001.OF,000005.OF,000009.OF",
+#           "trade_code,windcode,sec_name,sec_englishname,exchange_cn,ipo_date,isin_code,fund_fullname,name_official")
+# print(b)
+#
+# # convert to dict
+# for i in range(len(b.Fields)):
+#         dict1[b.Fields[i]] = b.Data[i]
+#
+# print(dict1)
 
 # insert into INSERT INTO `ia2`.`mkt_sec_info`(`sec_id`, `name_cn`, `symbol`, `mkt_id`) values()
+
+# a=w.wset("etfconstituent","date=2020-06-19;windcode=159901.OF")
