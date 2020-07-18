@@ -1,8 +1,11 @@
 from WindPy import w
-import utils.JdbcUtils
+from utils.JdbcUtils import *
+import time
 
 
 class WindUtils:
+
+    db_connect = jdbc_connect("localhost", "root", "1026", "ia2")
 
     def __init__(self):
         w.start()  # 默认命令超时时间为120秒，如需设置超时时间可以加入waitTime参数，例如waitTime=60,即设置命令超时时间为60秒
@@ -32,7 +35,6 @@ class WindUtils:
                                    "pct_chg_settlement,lastradeday_s,trade_status,susp_days,susp_reason",
                                    "2020-06-15", "2020-06-22",
                                    "unit=1;bondPriceType=2;adjDate=20200623")
-
         return mkt_q
 
     @classmethod
@@ -41,6 +43,30 @@ class WindUtils:
         for i in range(len(wind_data.Fields)):
             rdict[wind_data.Fields[i]] = wind_data.Data[i]
         return rdict
+
+    # 获取证券代码列表
+    # get_from_wind是否从wind获取 否则从数据库直接获取
+    @classmethod
+    def get_sec_id_list(cls, sec_type, get_from_wind=0, sql_execute_step=1000, time_string=time.strftime("%Y-%m-%d", time.localtime())):
+        if get_from_wind:
+            sec_type_map = {'fund_nav': 'a201010700000000',  # 净值型基金
+                            'stock_a': 'a001010100000000'  # A股
+                            }
+            sec_id_list = w.wset("sectorconstituent", "date=%s;sectorid=%s" % (time_string, sec_type_map[sec_type])).Data[1]
+            # sec_id_list = ['600000.SS','6000001.SS', '0000001.SZ']
+            # 写入本地，增加缓存机制
+            sql_para = []
+            sql = "insert into sec_id_temp(`type`,`sec_id`, `update_date`) values (%s,%s,%s);"
+            for sec_id in sec_id_list:
+                sql_para.append((sec_type, sec_id, time.strftime("%Y-%m-%d", time.localtime())))
+            WindUtils.db_connect.sql_many_by_step(sql, sql_para, sql_execute_step)
+            WindUtils.db_connect.closedb()
+        else:
+            sql = "select sec_id from sec_id_temp where type = '%s' " \
+                  "and update_date = (select max(update_date) from sec_id_temp where type='%s')" % (sec_type, sec_type)
+            print("execute sql :" + sql)
+            sec_id_list = list(i[0] for i in WindUtils.db_connect.select(sql))
+        return sec_id_list
 
 
 if __name__ == "__main__":
@@ -55,5 +81,6 @@ if __name__ == "__main__":
     # print(dict2)
     #
     # con1.dict_insert(dict2, 'mkt_sec_info')
-    a = windUtils.get_mkt_quotes()
+    # a = windUtils.get_mkt_quotes()
+    a = windUtils.get_sec_id_list("stock_a", 0)
     print(a)
