@@ -4,7 +4,7 @@ from WindPy import w
 from utils.CommonUtils import *
 
 
-class jdbc_connect:
+class JdbcConnect:
 
     cursor = ""
     db = False
@@ -147,12 +147,36 @@ class jdbc_connect:
         self.sql_many_by_step(sql_str, para_list)
         self.db.commit()
 
+    # wind_code和自定义代码my_code之间的转换
+    def my_code2wind_code(self, code_type, *my_codes):
+        wind_code_string = ''
+        for my_code in my_codes:
+            sql = "select code_id from wind_mapping where code_type = '%s' and my_code = '%s'" %(code_type, my_code)
+            print(sql)
+            result = self.select(sql)[0][0]
+            wind_code_string += result + ','
+        return wind_code_string.strip(',')
+
+    def wind_code2my_code(self, code_type, wind_code):
+        result_dict = {}
+        sql = "select my_code, unit, frequency from wind_mapping where code_type = '%s' and code_id = '%s'" %(code_type, wind_code)
+        self.cursor.execute(sql)
+        result = self.cursor.fetchall()[0]
+        index = self.cursor.description  # 获取列名
+        for i, r in zip(index, result):
+            result_dict[i[0]] = r
+        return result_dict
+
 
 if __name__ == "__main__":
-    connect1 = jdbc_connect("localhost", "root", "1026", "ia2")
+    connect1 = JdbcConnect("localhost", "root", "1026", "ia2")
+    print(connect1.my_code2wind_code("EDB", 'GDP_SEASON', 'GDP_FIRST_INDUS_SEASON'))
+    print(connect1.wind_code2my_code("EDB", "M5567877"))
+
+
     # connect1.dickey_convert2_dbkey("windcode", "sec_info")
-    li = list("a,s,d".split(','))
-    print(li)
+    # li = list("a,s,d".split(','))
+    # print(li)
 
     # sql = "insert into sec_id_temp(`type`,`sec_id`) values (%s,%s)"
     # a= []

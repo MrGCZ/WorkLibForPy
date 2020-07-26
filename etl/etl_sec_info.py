@@ -4,7 +4,7 @@ from utils.WindUtils import *
 
 
 class EtlSecInfo:
-    con1 = jdbc_connect("localhost", "root", "1026", "ia2")
+    con1 = JdbcConnect("localhost", "root", "1026", "ia2")
     windUtils = WindUtils()
     SecId = SecId()
     # 获取sec_id迭代器 多种方式
@@ -35,7 +35,28 @@ class EtlSecInfo:
             # self.con1.dict_insert(sec_dict_db, 'mkt_sec_info')
             self.con1.dict_insert_bulk(sec_dict_db, 'mkt_sec_info')
 
+    def wind_marcoeco_data(self, begin_date, end_date, *my_code_list):
+        '''
+        wind宏观经济数据
+        :return:
+        '''
+        wind_list = self.con1.my_code2wind_code("EDB", *my_code_list)
+        result_data = WindUtils.get_edb_data(wind_list, begin_date, end_date)
+        print(result_data)
+        for i in range(len(result_data.Codes)):
+            in_dict = self.con1.wind_code2my_code("EDB", result_data.Codes[i])
+            data_num = len(result_data.Data[i])
+            for k in in_dict:
+                in_dict[k] = [in_dict[k]] * data_num
+            in_dict['val'] = result_data.Data[i]
+            in_dict['dt'] = result_data.Times
+            print(in_dict)
+            self.con1.dict_insert_bulk(in_dict,'wind_macroeco')
+
+
 
 if __name__ == "__main__":
     esi = EtlSecInfo()
-    esi.etl_sec_info_gen(EtlSecInfo.fund_id_li_gen_db)
+    # esi.etl_sec_info_gen(EtlSecInfo.fund_id_li_gen_db)
+    esi.wind_marcoeco_data('2000-01-01', '2020-07-01', 'GDP_SEASON', 'GDP_FIRST_INDUS_SEASON', 'GDP_SECOND_INDUS_SEASON',
+                           'GDP_THIRD_INDUS_SEASON')

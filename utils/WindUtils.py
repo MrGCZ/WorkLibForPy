@@ -5,7 +5,7 @@ import time
 
 class WindUtils:
 
-    db_connect = jdbc_connect("localhost", "root", "1026", "ia2")
+    db_connect = JdbcConnect("localhost", "root", "1026", "ia2")
 
     def __init__(self):
         w.start()  # 默认命令超时时间为120秒，如需设置超时时间可以加入waitTime参数，例如waitTime=60,即设置命令超时时间为60秒
@@ -25,6 +25,18 @@ class WindUtils:
                                   ",curr,sec_type,mkt,exch_eng,exchange_cn,sec_status,comp_name"
                           )
         return fund_info
+
+    @classmethod
+    def get_edb_data(self, code_id, begin_date, end_date):
+        '''
+        获取wind经济数据EDB
+        :param code_id: string
+        :param begin_date:
+        :param end_date:
+        :return:
+        '''
+        edb_data = w.edb(code_id, begin_date, end_date, "Fill=Previous")
+        return edb_data
 
     # 获取市场行情
     def get_mkt_quotes(self):
@@ -82,5 +94,5 @@ if __name__ == "__main__":
     #
     # con1.dict_insert(dict2, 'mkt_sec_info')
     # a = windUtils.get_mkt_quotes()
-    a = windUtils.get_sec_id_list("stock_a", 0)
-    print(a)
+    # a = windUtils.get_sec_id_list("stock_a", 0)
+    # print(a)
